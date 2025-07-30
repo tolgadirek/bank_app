@@ -17,6 +17,7 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
   var tfLastName = TextEditingController();
   var tfEmail = TextEditingController();
   var tfPassword = TextEditingController();
+  var tfPhoneNumber = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,6 +78,25 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
                             SizedBox(height: 10.h,),
                             createTextField(context, tfLastName, "Enter Your Last Name"),
                             SizedBox(height: 10.h,),
+                            createTextField(
+                              context,
+                              tfPhoneNumber,
+                              "Enter Your Phone Number",
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "This field is required";
+                                }
+                                final phone = value.trim();
+                                if (phone.length != 11) { //11 hane kontrolü
+                                  return "Phone number must be exactly 11 digits";
+                                }
+                                if (!RegExp(r'^\d{11}$').hasMatch(phone)) { // sayı dışında bişey varsa kontrolü
+                                  return "Phone number must contain only digits";
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 10.h,),
                             createTextField(context, tfEmail, "Enter Your Email Address"),
                             SizedBox(height: 10.h,),
                             createTextField(context, tfPassword, "Enter Your Password", isPassword: true),
@@ -97,6 +117,7 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
                                           tfPassword.text.trim(),
                                           tfFirstName.text.trim(),
                                           tfLastName.text.trim(),
+                                          tfPhoneNumber.text.trim(),
                                         );
                                       }
                                     }, child: Text("Register", style: TextStyle(fontSize: 20.sp),)),
@@ -117,7 +138,7 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
   }
 }
 
-Widget createTextField(BuildContext context, TextEditingController controller, String hintText, {bool isPassword = false}) {
+Widget createTextField(BuildContext context, TextEditingController controller, String hintText, {bool isPassword = false, FormFieldValidator<String>? validator}) {
   return SizedBox(
     height: 50.h,
     child: TextFormField(
@@ -125,12 +146,13 @@ Widget createTextField(BuildContext context, TextEditingController controller, S
       obscureText: isPassword,
       cursorColor: Colors.black,
       style: const TextStyle(color: Colors.black),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return "This field is required";
-        }
-        return null;
-      },
+      validator: validator ??
+              (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "This field is required";
+                }
+                return null;
+              },
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,

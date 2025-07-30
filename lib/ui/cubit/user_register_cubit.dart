@@ -27,11 +27,15 @@ class UserRegisterCubit extends Cubit<UserRegisterState> {
 
   var repo = Repository();
 
-  Future<void> register(String email, String password, String firstName, String lastName) async {
+  Future<void> register(String email, String password, String firstName, String lastName, String phoneNumber) async {
     emit(UserRegisterLoading());
     try {
-     final result = await repo.register(email, password, firstName, lastName);
-     emit(UserRegisterSuccess(user: result.user, token: result.token));
+     final result = await repo.register(email, password, firstName, lastName, phoneNumber);
+     if(result != null) {
+       emit(UserRegisterSuccess(user: result.user, token: result.token));
+     } else {
+       emit(UserRegisterError(message: "Registration failed"));
+     }
     } catch (e) {
       emit(UserRegisterError(message: "registration failed $e"));
     }

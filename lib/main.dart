@@ -1,3 +1,4 @@
+import 'package:bank_app/ui/cubit/bank_accounts_cubit.dart';
 import 'package:bank_app/ui/cubit/user_login_cubit.dart';
 import 'package:bank_app/ui/cubit/user_register_cubit.dart';
 import 'package:bank_app/ui/view/router.dart';
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => UserLoginCubit()),
         BlocProvider(create: (context) => UserRegisterCubit()),
+        BlocProvider(create: (context) => BankAccountsCubit()),
       ],
       child: ScreenUtilInit(
         designSize: Size(412, 732),

@@ -84,9 +84,11 @@ class _UserLoginPageState extends State<UserLoginPage> {
                                         foregroundColor: Colors.white
                                     ),
                                     onPressed: (){
-                                      String email = tfEmail.text.trim();
-                                      String password = tfPassword.text.trim();
-                                      context.read<UserLoginCubit>().login(email, password);
+                                      if(formKey.currentState!.validate()) {
+                                        String email = tfEmail.text.trim();
+                                        String password = tfPassword.text.trim();
+                                        context.read<UserLoginCubit>().login(email, password);
+                                      }
                                     }, child: Text("Log In", style: TextStyle(fontSize: 20.sp),)),
                               ),
                             ),

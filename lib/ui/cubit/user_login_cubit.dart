@@ -31,7 +31,11 @@ class UserLoginCubit extends Cubit<UserLoginState> {
     emit(UserLoginLoading());
     try {
       final result = await repo.login(email, password);
-      emit(UserLoginSuccess(user: result.user, token: result.token));
+      if(result != null) {
+        emit(UserLoginSuccess(user: result.user, token: result.token));
+      } else {
+        emit(UserLoginError(message: "Invalid email or password"));
+      }
     } catch (e) {
       emit(UserLoginError(message: "Login failed: $e"));
     }

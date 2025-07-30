@@ -1,3 +1,4 @@
+import 'package:bank_app/ui/view/accounts_page.dart';
 import 'package:bank_app/ui/view/home_page.dart';
 import 'package:bank_app/ui/view/user_login_page.dart';
 import 'package:bank_app/ui/view/user_register_page.dart';
@@ -17,6 +18,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: "/homePage",
       builder: (context, state) => const HomePage(),
+    ),
+    GoRoute(
+      path: "/accountsPage",
+      builder: (context, state) => const AccountsPage(),
     ),
   ]
 );
