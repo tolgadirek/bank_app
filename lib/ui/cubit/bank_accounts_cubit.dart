@@ -46,4 +46,18 @@ class BankAccountsCubit extends Cubit<BankAccountState> {
       emit(BankAccountError(message: "Hesaplar getirilemedi: $e"));
     }
   }
+
+  Future<void> deleteAccount(int id) async {
+    try {
+      final success = await repo.deleteAccount(id);
+      if (success) {
+        currentAccounts.removeWhere((account) => account.id == id);
+        emit(BankAccountLoaded(accounts: List.from(currentAccounts)));
+      } else {
+        emit(BankAccountError(message: "Silme işlemi başarısız."));
+      }
+    } catch (e) {
+      emit(BankAccountError(message: "Silme hatası: $e"));
+    }
+  }
 }

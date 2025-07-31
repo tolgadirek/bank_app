@@ -1,3 +1,4 @@
+import 'package:bank_app/ui/view/account_detail_page.dart';
 import 'package:bank_app/ui/view/accounts_page.dart';
 import 'package:bank_app/ui/view/home_page.dart';
 import 'package:bank_app/ui/view/user_login_page.dart';
@@ -22,6 +23,13 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: "/accountsPage",
       builder: (context, state) => const AccountsPage(),
+    ),
+    GoRoute(
+      path: "/accountDetail/:id",
+      builder: (context, state) {
+        final id = state.pathParameters["id"];
+        return AccountDetailPage(id: int.parse(id!));
+      }
     ),
   ]
 );

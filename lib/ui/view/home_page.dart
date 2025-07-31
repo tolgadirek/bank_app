@@ -118,7 +118,9 @@ class _HomePageState extends State<HomePage> {
                           itemBuilder: (context, index) {
                             final account = accounts[index];
                             return GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                context.push("/accountDetail/${account.id}");
+                              },
                               child: Card(
                                 elevation: 4,
                                 child: Padding(
@@ -140,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                                         alignment: Alignment.bottomRight,
                                         child: TextButton(onPressed: (){
 
-                                        }, child: Text("Account Transactions ➔", style: TextStyle(color: Colors.blueAccent),)),
+                                        }, child: Text("Account Transactions ➔", style: TextStyle(color: Colors.green),)),
                                       ),
                                     ],
                                   ),

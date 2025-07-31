@@ -3,6 +3,7 @@ import 'package:bank_app/ui/cubit/bank_accounts_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class AccountsPage extends StatefulWidget {
   const AccountsPage({super.key});
@@ -61,12 +62,12 @@ class _AccountsPageState extends State<AccountsPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("All Accounts ($totalAccount)", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),),
+                                    Text("All Accounts ($totalAccount)", style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold),),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text("Avaliable Balance", style: TextStyle(fontSize: 15.sp, color: Colors.grey),),
-                                        Text("$totalBalance TL", style: TextStyle(fontSize: 15.sp, color: Colors.grey),),
+                                        Text("Avaliable Balance", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
+                                        Text("$totalBalance TL", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
                                       ],
                                     ),
                                   ],
@@ -86,7 +87,9 @@ class _AccountsPageState extends State<AccountsPage> {
                               itemBuilder: (context, index) {
                                 final account = accounts[index];
                                 return GestureDetector(
-                                  onTap: () {},
+                                  onTap: () {
+                                    context.push("/accountDetail/${account.id}");
+                                  },
                                   child: Card(
                                     child: Padding(
                                       padding: EdgeInsets.all(15.r),
@@ -96,26 +99,25 @@ class _AccountsPageState extends State<AccountsPage> {
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(account.name, style: TextStyle(fontSize: 16.sp,fontWeight: FontWeight.bold),),
-                                              Text(account.accountNumber, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),),
+                                              Text(account.name, style: TextStyle(fontSize: 17.sp,fontWeight: FontWeight.bold),),
+                                              Text(account.accountNumber, style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold),),
                                             ],
                                           ),
                                           SizedBox(height: 10.h,),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text("Balance", style: TextStyle(fontSize: 15.sp, color: Colors.grey),),
-                                              Text("${account.balance} TL", style: TextStyle(fontSize: 15.sp, color: Colors.grey),),
+                                              Text("Balance", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
+                                              Text("${account.balance} TL", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
                                             ],
                                           ),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text("Avaliable Balance", style: TextStyle(fontSize: 15.sp, color: Colors.grey),),
-                                              Text("${account.balance} TL", style: TextStyle(fontSize: 15.sp, color: Colors.grey),),
+                                              Text("Avaliable Balance", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
+                                              Text("${account.balance} TL", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
                                             ],
                                           ),
-
                                         ],
                                       ),
                                     ),

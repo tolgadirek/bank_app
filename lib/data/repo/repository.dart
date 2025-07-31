@@ -76,4 +76,33 @@ class Repository {
     }
   }
 
+  Future<AccountModel?> getAccountById(int id) async {
+    final authDio = await DioService.getAuthorizedDio();
+    try {
+      final response = await authDio.get("/account/$id");
+      final data = response.data["account"];
+
+      if (data != null) {
+        return AccountModel.fromJson(data);
+      } else {
+        print("Hesap bulunamadı.");
+        return null;
+      }
+    } catch (e) {
+      print("Hata: $e");
+      return null;
+    }
+  }
+
+  Future<bool> deleteAccount(int id) async {
+    final authDio = await DioService.getAuthorizedDio();
+    try {
+      final response = await authDio.delete("/account/$id");
+      return response.statusCode == 200;
+    } catch (e) {
+      print("Hata: $e");
+      return false;
+    }
+  }
+
 }

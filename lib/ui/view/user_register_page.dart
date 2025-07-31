@@ -43,7 +43,7 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
           BlocConsumer<UserRegisterCubit, UserRegisterState>(
             listener: (context, state) {
               if (state is UserRegisterSuccess) {
-                context.go('/login');
+                context.go('/homePage');
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("Registration Process Completed")));
               } else if (state is UserRegisterError) {
