@@ -27,7 +27,7 @@ class _AccountDetailPageState extends State<AccountDetailPage> {
       appBar: AppBar(
         title: Text("Trex Bank", style: TextStyle(color: Colors.white),),
         centerTitle: true,
-        backgroundColor: Colors.green,
+        backgroundColor: Color.fromRGBO(2, 165, 165, 1),
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -163,7 +163,9 @@ class _AccountDetailPageState extends State<AccountDetailPage> {
 
                           SizedBox(height: 30.h,),
 
-                          createElevatedButton("Account Transactions", (){print("");}),
+                          createElevatedButton("Account Transactions", (){
+                            context.push("/transaction/${account.id}");
+                          }),
                           SizedBox(height: 10,),
 
                           createElevatedButton("Delete Account", () async {
@@ -220,7 +222,7 @@ Widget createElevatedButton(String text, VoidCallback onPressed) {
     child: ElevatedButton(
         onPressed: onPressed,
         style: TextButton.styleFrom(
-          backgroundColor: Colors.green,
+          backgroundColor: Color.fromRGBO(2, 165, 165, 1),
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.r),

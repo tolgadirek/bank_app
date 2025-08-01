@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Trex Bank", style: TextStyle(color: Colors.white),),
         centerTitle: true,
-        backgroundColor: Colors.green,
+        backgroundColor: Color.fromRGBO(2, 165, 165, 1),
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> {
                         );
                       },
                     );
-                  }, icon: Icon(Icons.add, color: Colors.green,))
+                  }, icon: Icon(Icons.add, color: Color.fromRGBO(2, 165, 165, 1),))
                 ],
               ),
               Divider(),
@@ -141,8 +141,8 @@ class _HomePageState extends State<HomePage> {
                                       Align(
                                         alignment: Alignment.bottomRight,
                                         child: TextButton(onPressed: (){
-
-                                        }, child: Text("Account Transactions ➔", style: TextStyle(color: Colors.green),)),
+                                          context.push("/transaction/${account.id}");
+                                        }, child: Text("Account Transactions ➔", style: TextStyle(color: Color.fromRGBO(2, 165, 165, 1),),)),
                                       ),
                                     ],
                                   ),
@@ -162,14 +162,16 @@ class _HomePageState extends State<HomePage> {
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.push("/moneyTransferPage");
+                  },
                   style: TextButton.styleFrom(
                     alignment: Alignment.centerLeft,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.zero,
                     ),
                   ),
-                  child: Text("Money Transfer", style: TextStyle(color: Colors.green),),
+                  child: Text("Money Transfer", style: TextStyle(color: Color.fromRGBO(2, 165, 165, 1),),),
                 )
               ),
               // Accounts Button
@@ -185,7 +187,7 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: Text("My Accounts", style: TextStyle(color: Colors.green),),
+                    child: Text("My Accounts", style: TextStyle(color: Color.fromRGBO(2, 165, 165, 1),),),
                   )
               ),
               // ATM Transactions Button
@@ -199,7 +201,7 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: Text("ATM Transactions", style: TextStyle(color: Colors.green),),
+                    child: Text("ATM Transactions", style: TextStyle(color: Color.fromRGBO(2, 165, 165, 1),),),
                   )
               ),
             ],

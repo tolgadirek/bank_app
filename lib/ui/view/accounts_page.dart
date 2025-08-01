@@ -26,7 +26,7 @@ class _AccountsPageState extends State<AccountsPage> {
       appBar: AppBar(
         title: Text("Trex Bank", style: TextStyle(color: Colors.white),),
         centerTitle: true,
-        backgroundColor: Colors.green,
+        backgroundColor: Color.fromRGBO(2, 165, 165, 1),
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(

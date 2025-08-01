@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:bank_app/data/entity/account_model.dart';
 import 'package:bank_app/data/entity/account_response_model.dart';
+import 'package:bank_app/data/entity/transaction_model.dart';
+import 'package:bank_app/data/entity/transaction_response_model.dart';
 import 'package:bank_app/data/entity/user_response_model.dart';
 import 'package:bank_app/data/services/dio_service.dart';
 import 'package:dio/dio.dart';
@@ -102,6 +106,40 @@ class Repository {
     } catch (e) {
       print("Hata: $e");
       return false;
+    }
+  }
+
+  Future<TransactionResponseModel?> createTransaction(
+      int accountId, String type, double amount, AccountModel? relatedAccount,
+      {String? relatedIban, String? relatedFirtName, String? relatedLastName}
+      ) async {
+    final authDio = await DioService.getAuthorizedDio();
+    try {
+      final response = await authDio.post("/transaction", data: {
+        "accountId": accountId,
+        "type": type,
+        "amount": amount,
+        "relatedAccountId": relatedAccount?.id,
+        "relatedIban": relatedIban,
+        "relatedFirstName": relatedFirtName,
+        "relatedLastName": relatedLastName
+      });
+      return TransactionResponseModel.fromJson(response.data);
+    } catch (e) {
+      print("Hata: $e");
+      return null;
+    }
+  }
+
+  Future<List<TransactionModel>> getTransactions(int accountId) async {
+    final authDio = await DioService.getAuthorizedDio();
+    try {
+      final response = await authDio.get("/transaction/$accountId");
+      final List data = response.data["transactions"];
+      return data.map((json) => TransactionModel.fromJson(json)).toList();
+    } catch (e) {
+      print("Hata: $e");
+      return [];
     }
   }
 

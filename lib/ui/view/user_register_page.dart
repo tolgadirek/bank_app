@@ -107,7 +107,7 @@ class _UserRegisterPageState extends State<UserRegisterPage> {
                                 width: double.infinity,
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green,
+                                        backgroundColor: Color.fromRGBO(2, 165, 165, 1),
                                         foregroundColor: Colors.white
                                     ),
                                     onPressed: (){
