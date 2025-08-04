@@ -34,10 +34,10 @@ class UserLoginCubit extends Cubit<UserLoginState> {
       if(result != null) {
         emit(UserLoginSuccess(user: result.user, token: result.token));
       } else {
-        emit(UserLoginError(message: "Invalid email or password"));
+        emit(UserLoginError(message: "An unexpected error occurred"));
       }
     } catch (e) {
-      emit(UserLoginError(message: "Login failed: $e"));
+      emit(UserLoginError(message: e.toString()));
     }
   }
 }

@@ -1,7 +1,9 @@
 import 'package:bank_app/ui/view/account_detail_page.dart';
 import 'package:bank_app/ui/view/accounts_page.dart';
+import 'package:bank_app/ui/view/atm_transactions_page.dart';
 import 'package:bank_app/ui/view/home_page.dart';
 import 'package:bank_app/ui/view/money_transfer_page.dart';
+import 'package:bank_app/ui/view/settings_page.dart';
 import 'package:bank_app/ui/view/transactions_page.dart';
 import 'package:bank_app/ui/view/user_login_page.dart';
 import 'package:bank_app/ui/view/user_register_page.dart';
@@ -43,6 +45,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
         path: "/moneyTransferPage",
         builder: (context, state) => const MoneyTransferPage(),
+    ),
+    GoRoute(
+        path: "/atmTransactionsPage",
+        builder: (context, state) => const AtmTransactionsPage(),
+    ),
+    GoRoute(
+      path: "/settingsPage",
+      builder: (context, state) => const SettingsPage(),
     ),
   ]
 );

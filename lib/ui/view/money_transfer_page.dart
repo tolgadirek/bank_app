@@ -1,7 +1,9 @@
+import 'package:bank_app/ui/cubit/bank_accounts_cubit.dart';
 import 'package:bank_app/ui/cubit/transactions_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class MoneyTransferPage extends StatefulWidget {
   const MoneyTransferPage({super.key});
@@ -16,6 +18,7 @@ class _MoneyTransferPageState extends State<MoneyTransferPage> {
   var tfFirstName = TextEditingController();
   var tfLastName = TextEditingController();
   var tfAmount = TextEditingController();
+  int? selectedAccountId;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -35,6 +38,46 @@ class _MoneyTransferPageState extends State<MoneyTransferPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text("Sending Account"),
+                  BlocBuilder<BankAccountsCubit, BankAccountState>(
+                      builder: (context, state) {
+                        if (state is BankAccountLoading) {
+                          return Center(child: CircularProgressIndicator(),);
+                        } else if (state is BankAccountError) {
+                          return Center(child: Text(state.message),);
+                        } else if (state is BankAccountLoaded) {
+                          final accounts = state.accounts;
+                          if (accounts.isEmpty) {
+                            return Text("You don't have an account");
+                          } else {
+                            return DropdownButtonFormField(
+                              decoration: const InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                hintText: "Sending Account",
+                                border: OutlineInputBorder(borderSide: BorderSide.none,),
+                              ),
+                              value: selectedAccountId,
+                              items: accounts.map((account) {
+                                return DropdownMenuItem(
+                                  value: account.id,
+                                  child: Text("${account.name} - ${account.balance} TL"),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedAccountId = value;
+                                });
+                              },
+                              validator: (value) => value == null ? "Please select an account" : null,
+                            );
+                          }
+                        } else {
+                          return Center(child: Text("Failed to Load Data"),);
+                        }
+                      }
+                  ),
+                  SizedBox(height: 20.h,),
 
                   Text("Receiver First Name:"),
                   TextFormField(
@@ -43,7 +86,6 @@ class _MoneyTransferPageState extends State<MoneyTransferPage> {
                       filled: true,
                       fillColor: Colors.white,
                       hintText: "Receiver First Name",
-                      hintStyle: const TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(borderSide: BorderSide.none,),
                     ),
                     validator: (value) => value == null || value.isEmpty ? "Enter the First Name": null,
@@ -57,7 +99,6 @@ class _MoneyTransferPageState extends State<MoneyTransferPage> {
                       filled: true,
                       fillColor: Colors.white,
                       hintText: "Receiver Last Name",
-                      hintStyle: const TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(borderSide: BorderSide.none,),
                     ),
                     validator: (value) => value == null || value.isEmpty ? "Enter the Last Name": null,
@@ -71,7 +112,6 @@ class _MoneyTransferPageState extends State<MoneyTransferPage> {
                       filled: true,
                       fillColor: Colors.white,
                       hintText: "Receiver IBAN",
-                      hintStyle: const TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(borderSide: BorderSide.none,),
                     ),
                     validator: (value) => value == null || value.isEmpty ? "Enter the IBAN": null,
@@ -85,7 +125,6 @@ class _MoneyTransferPageState extends State<MoneyTransferPage> {
                       filled: true,
                       fillColor: Colors.white,
                       hintText: "Amount",
-                      hintStyle: const TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(borderSide: BorderSide.none,),
                     ),
                     validator: (value) => value == null || value.isEmpty ? "Enter the Amount": null,
@@ -97,52 +136,107 @@ class _MoneyTransferPageState extends State<MoneyTransferPage> {
                     width: double.infinity,
                     height: 50.h,
                     child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (formKey.currentState!.validate()){
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text("Money Transfer"),
-                                    content: SingleChildScrollView(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text("Selected Account: "),
-                                          Text("data"),
-                                          SizedBox(height: 20.h,),
+                            try {
+                              final isValid = await context.read<TransactionCubit>().validateTransactionDetails(
+                                selectedAccountId!,
+                                "TRANSFER_OUT",
+                                double.parse(tfAmount.text.trim()),
+                                relatedIban: tfIban.text.trim(),
+                                relatedFirstName: tfFirstName.text.trim(),
+                                relatedLastName: tfLastName.text.trim(),
+                              );
+                              if (isValid) {
 
-                                          Text("Receiver First Name: "),
-                                          Text(tfFirstName.text.trim()),
-                                          SizedBox(height: 20.h,),
+                                final accountsState = context.read<BankAccountsCubit>().state;
+                                String selectedAccountName = "";
 
-                                          Text("Receiver Last Name: "),
-                                          Text(tfLastName.text.trim()),
-                                          SizedBox(height: 20.h,),
-
-                                          Text("Receiver Iban: "),
-                                          Text(tfIban.text.trim()),
-                                          SizedBox(height: 20.h,),
-
-                                          Text("Amount: "),
-                                          Text("${tfAmount.text.trim()} TL"),
-                                          SizedBox(height: 20.h,),
-
-                                        ],
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(onPressed: (){
-                                        Navigator.pop(context);
-                                      }, child: Text("Cancel", style: TextStyle(color: Colors.red),)),
-                                      TextButton(onPressed: (){
-
-                                      }, child: Text("Send", style: TextStyle(color: Colors.green),)),
-                                    ],
+                                if (accountsState is BankAccountLoaded) {
+                                  final selectedAccount = accountsState.accounts.firstWhere(
+                                        (account) => account.id == selectedAccountId,
                                   );
+                                  selectedAccountName = selectedAccount.name;
                                 }
-                            );
+
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text("Money Transfer"),
+                                        content: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text("Selected Account: "),
+                                              Text(selectedAccountName),
+                                              SizedBox(height: 20.h,),
+
+                                              Text("Receiver First Name: "),
+                                              Text(tfFirstName.text.trim()),
+                                              SizedBox(height: 20.h,),
+
+                                              Text("Receiver Last Name: "),
+                                              Text(tfLastName.text.trim()),
+                                              SizedBox(height: 20.h,),
+
+                                              Text("Receiver Iban: "),
+                                              Text(tfIban.text.trim()),
+                                              SizedBox(height: 20.h,),
+
+                                              Text("Amount: "),
+                                              Text("${tfAmount.text.trim()} TL"),
+                                              SizedBox(height: 20.h,),
+
+                                            ],
+                                          ),
+                                        ),
+                                        actions: [
+                                          TextButton(onPressed: () async {
+                                            Navigator.pop(context);
+                                          }, child: Text("Cancel", style: TextStyle(color: Colors.red),)),
+                                          TextButton(onPressed: () async {
+                                            try {
+                                              await context.read<TransactionCubit>().createTransaction(
+                                                selectedAccountId!,
+                                                "TRANSFER_OUT",
+                                                double.parse(tfAmount.text.trim()),
+                                                relatedIban: tfIban.text.trim(),
+                                                relatedFirstName: tfFirstName.text.trim(),
+                                                relatedLastName: tfLastName.text.trim(),
+                                              );
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: Text("Success"),
+                                                      content: Text("Your transaction has been completed successfully."),
+                                                      actions: [
+                                                        TextButton(onPressed: () async {
+                                                          await context.read<BankAccountsCubit>().getBankAccounts();
+                                                          context.go("/homePage");
+                                                        }, child: Text("Ok")),
+                                                      ],
+                                                    );
+                                                  }
+                                              );
+                                            } catch (e) {
+                                              Navigator.pop(context);
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text(e.toString())),
+                                              );
+                                            }
+                                          }, child: Text("Send", style: TextStyle(color: Colors.green),)),
+                                        ],
+                                      );
+                                    }
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(e.toString())));
+                            }
                           }
                         },
                         style: TextButton.styleFrom(

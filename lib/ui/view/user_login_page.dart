@@ -18,99 +18,103 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true, // Arka plan AppBar arkasına geçsin
-      appBar: AppBar(
-        backgroundColor: Colors.transparent, // Şeffaflık
-        elevation: 0, // Gölge yok
-        title: Text("Trex Bank", style: TextStyle(color: Colors.white),),
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.white),
-      ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-              child: ColorFiltered(
-                  colorFilter: ColorFilter.mode(
-                    Colors.black.withOpacity(0.6), // Ne kadar karanlık olmasını istiyorsan
-                    BlendMode.darken,
-                  ),
-                  child: Image.asset("images/trex.png", fit: BoxFit.cover, )
-              ),
-          ),
-          BlocConsumer<UserLoginCubit, UserLoginState>(
-            listener: (context, state) {
-              if (state is UserLoginSuccess) {
-                context.go('/homePage');
-              } else if (state is UserLoginError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),);
-              }
-            },
-            builder: (context, state) {
-              return SingleChildScrollView( // Bunu koyunca arka plan aşağıdan boşluk verdi.
-                child: ConstrainedBox(
-                  constraints: BoxConstraints( // Bu sayede arka plan resmi bozulmamış tam ekran oldu.
-                    minHeight: MediaQuery.of(context).size.height,
-                  ),
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(30.r),
-                      child: Form(
-                        key: formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 190.h,),
-                            Text(
-                              "Log in",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20.sp),
-                            ),
-                            SizedBox(height: 20.h,),
-                            createTextField(context, tfEmail, "Enter Your Email Address"),
-                            SizedBox(height: 10.h,),
-                            createTextField(context, tfPassword, "Enter Your Password", isPassword: true),
-                            SizedBox(height: 40.h,),
-                            Padding(
-                              padding: EdgeInsets.only(right: 40.w, left: 40.w),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color.fromRGBO(2, 165, 165, 1),
-                                        foregroundColor: Colors.white
-                                    ),
-                                    onPressed: (){
-                                      if(formKey.currentState!.validate()) {
-                                        String email = tfEmail.text.trim();
-                                        String password = tfPassword.text.trim();
-                                        context.read<UserLoginCubit>().login(email, password);
-                                      }
-                                    }, child: Text("Log In", style: TextStyle(fontSize: 20.sp),)),
+    return GestureDetector(
+      onTap: FocusScope.of(context).unfocus,
+      child: Scaffold(
+        extendBodyBehindAppBar: true, // Arka plan AppBar arkasına geçsin
+        resizeToAvoidBottomInset: true, // Fotoğrafın kaymasını kontrol ederiz.
+        appBar: AppBar(
+          backgroundColor: Colors.transparent, // Şeffaflık
+          elevation: 0, // Gölge yok
+          title: Text("Trex Bank", style: TextStyle(color: Colors.white),),
+          centerTitle: true,
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
+        body: Stack(
+          children: [
+            Positioned.fill(
+                child: ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                      Colors.black.withOpacity(0.6), // Ne kadar karanlık olmasını istiyorsan
+                      BlendMode.darken,
+                    ),
+                    child: Image.asset("images/trex.png", fit: BoxFit.cover, )
+                ),
+            ),
+            BlocConsumer<UserLoginCubit, UserLoginState>(
+              listener: (context, state) {
+                if (state is UserLoginSuccess) {
+                  context.go('/homePage');
+                } else if (state is UserLoginError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),);
+                }
+              },
+              builder: (context, state) {
+                return SingleChildScrollView( // Bunu koyunca arka plan aşağıdan boşluk verdi.
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints( // Bu sayede arka plan resmi bozulmamış tam ekran oldu.
+                      minHeight: MediaQuery.of(context).size.height,
+                    ),
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(30.r),
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 190.h,),
+                              Text(
+                                "Log in",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20.sp),
                               ),
-                            ),
-                            SizedBox(height: 60.h,),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextButton(onPressed: (){
-                                  context.push("/register");
-                                }, child: Text("Become a Costumer", style: TextStyle(color: Colors.white54, fontSize: 15.sp),)),
-                              ],
-                            ),
-                          ],
+                              SizedBox(height: 20.h,),
+                              createTextField(context, tfEmail, "Enter Your Email Address"),
+                              SizedBox(height: 10.h,),
+                              createTextField(context, tfPassword, "Enter Your Password", isPassword: true),
+                              SizedBox(height: 40.h,),
+                              Padding(
+                                padding: EdgeInsets.only(right: 40.w, left: 40.w),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color.fromRGBO(2, 165, 165, 1),
+                                          foregroundColor: Colors.white
+                                      ),
+                                      onPressed: (){
+                                        if(formKey.currentState!.validate()) {
+                                          String email = tfEmail.text.trim();
+                                          String password = tfPassword.text.trim();
+                                          context.read<UserLoginCubit>().login(email, password);
+                                        }
+                                      }, child: Text("Log In", style: TextStyle(fontSize: 20.sp),)),
+                                ),
+                              ),
+                              SizedBox(height: 60.h,),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextButton(onPressed: (){
+                                    context.push("/register");
+                                  }, child: Text("Become a Costumer", style: TextStyle(color: Colors.white54, fontSize: 15.sp),)),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

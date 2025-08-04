@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
-                              }, child: const Text("No", style: TextStyle(color: Colors.red),),
+                              }, child: const Text("No",),
                             ),
 
                             TextButton(
@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                                   await incrementSayac(userId);
                                 }
                                 Navigator.pop(context);
-                              }, child: const Text("Yes", style: TextStyle(color: Colors.green),),
+                              }, child: const Text("Yes",),
                             ),
                           ],
                         );
@@ -158,22 +158,6 @@ class _HomePageState extends State<HomePage> {
                   }
               ),
               SizedBox(height: 20.h,),
-              //Money Transfer Button
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () {
-                    context.push("/moneyTransferPage");
-                  },
-                  style: TextButton.styleFrom(
-                    alignment: Alignment.centerLeft,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                    ),
-                  ),
-                  child: Text("Money Transfer", style: TextStyle(color: Color.fromRGBO(2, 165, 165, 1),),),
-                )
-              ),
               // Accounts Button
               SizedBox(
                   width: double.infinity,
@@ -190,11 +174,31 @@ class _HomePageState extends State<HomePage> {
                     child: Text("My Accounts", style: TextStyle(color: Color.fromRGBO(2, 165, 165, 1),),),
                   )
               ),
+
+              //Money Transfer Button
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    context.push("/moneyTransferPage");
+                  },
+                  style: TextButton.styleFrom(
+                    alignment: Alignment.centerLeft,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
+                  child: Text("Money Transfer", style: TextStyle(color: Color.fromRGBO(2, 165, 165, 1),),),
+                )
+              ),
+
               // ATM Transactions Button
               SizedBox(
                   width: double.infinity,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push("/atmTransactionsPage");
+                    },
                     style: TextButton.styleFrom(
                       alignment: Alignment.centerLeft,
                       shape: RoundedRectangleBorder(
@@ -202,6 +206,23 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     child: Text("ATM Transactions", style: TextStyle(color: Color.fromRGBO(2, 165, 165, 1),),),
+                  )
+              ),
+
+              // Settings Button
+              SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () {
+                      context.push("/settingsPage");
+                    },
+                    style: TextButton.styleFrom(
+                      alignment: Alignment.centerLeft,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: Text("Settings", style: TextStyle(color: Color.fromRGBO(2, 165, 165, 1),),),
                   )
               ),
             ],

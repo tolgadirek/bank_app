@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:bank_app/data/entity/account_model.dart';
 import 'package:bank_app/data/entity/account_response_model.dart';
 import 'package:bank_app/data/entity/transaction_model.dart';
@@ -25,9 +23,13 @@ class Repository {
       if (token != null) await saveToken(token);
 
       return UserResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      print("Hata: $e");
+      final message = e.response?.data["message"] ?? "Server Error";
+      throw message;
     } catch (e) {
       print("Hata: $e");
-      return null;
+      throw "Error: $e";
     }
   }
 
@@ -39,13 +41,22 @@ class Repository {
       });
 
       final token = response.data['token'];
-      if (token != null) await saveToken(token);
+      if (token != null)  {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove("token");
+        await saveToken(token);
+      }
+
       print("Token: $token");
       print("data: ${response.data}");
       return UserResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      print("Hata: $e");
+      final message = e.response?.data["message"] ?? "Server Error";
+      throw message;
     } catch (e) {
       print("Hata: $e");
-      return null;
+      throw "Error: $e";
     }
   }
 
@@ -61,9 +72,13 @@ class Repository {
         "name": name,
       });
       return AccountResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      print("Hata: $e");
+      final message = e.response?.data["message"] ?? "Server Error";
+      throw message;
     } catch (e) {
       print("Hata: $e");
-      return null;
+      throw "Error: $e";
     }
   }
 
@@ -103,31 +118,61 @@ class Repository {
     try {
       final response = await authDio.delete("/account/$id");
       return response.statusCode == 200;
+    } on DioException catch (e) {
+      print("Hata: $e");
+      final message = e.response?.data['message'] ?? "Server Error";
+      throw message;
     } catch (e) {
       print("Hata: $e");
-      return false;
+      throw "Error: $e";
+    }
+  }
+
+  Future<bool> validateTransactionDetails(
+      int accountId, String type, double amount,
+      {String? relatedIban, String? relatedFirstName, String? relatedLastName,}) async {
+    final authDio = await DioService.getAuthorizedDio();
+    try {
+      await authDio.post("/transaction/validate", data: {
+        "accountId": accountId,
+        "type": type,
+        "amount": amount,
+        "relatedIban": relatedIban,
+        "relatedFirstName": relatedFirstName,
+        "relatedLastName": relatedLastName,
+      });
+      return true;
+    } on DioException catch (e) {
+      print("Hata: $e");
+      final message = e.response?.data['message'] ?? "Server Error";
+      throw message;
+    } catch (e) {
+      print("Hata: $e");
+      throw "Error: $e";
     }
   }
 
   Future<TransactionResponseModel?> createTransaction(
-      int accountId, String type, double amount, AccountModel? relatedAccount,
-      {String? relatedIban, String? relatedFirtName, String? relatedLastName}
-      ) async {
+      int accountId, String type, double amount,
+      {String? relatedIban, String? relatedFirstName, String? relatedLastName,}) async {
     final authDio = await DioService.getAuthorizedDio();
     try {
       final response = await authDio.post("/transaction", data: {
         "accountId": accountId,
         "type": type,
         "amount": amount,
-        "relatedAccountId": relatedAccount?.id,
         "relatedIban": relatedIban,
-        "relatedFirstName": relatedFirtName,
+        "relatedFirstName": relatedFirstName,
         "relatedLastName": relatedLastName
       });
       return TransactionResponseModel.fromJson(response.data);
+    } on DioException catch (e) {
+      print("Hata: $e");
+      final message = e.response?.data['message'] ?? "Server Error";
+      throw message;
     } catch (e) {
       print("Hata: $e");
-      return null;
+      throw "Error: $e";
     }
   }
 

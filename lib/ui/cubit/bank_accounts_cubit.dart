@@ -32,7 +32,7 @@ class BankAccountsCubit extends Cubit<BankAccountState> {
         emit(BankAccountLoaded(accounts: currentAccounts));
       }
     } catch (e) {
-      emit(BankAccountError(message: "Hesap oluşturulamadı: $e"));
+      throw e.toString();
     }
   }
 
@@ -57,7 +57,7 @@ class BankAccountsCubit extends Cubit<BankAccountState> {
         emit(BankAccountError(message: "Silme işlemi başarısız."));
       }
     } catch (e) {
-      emit(BankAccountError(message: "Silme hatası: $e"));
+      throw e.toString();
     }
   }
 }

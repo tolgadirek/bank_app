@@ -166,7 +166,7 @@ class _AccountDetailPageState extends State<AccountDetailPage> {
                           createElevatedButton("Account Transactions", (){
                             context.push("/transaction/${account.id}");
                           }),
-                          SizedBox(height: 10,),
+                          SizedBox(height: 10.h,),
 
                           createElevatedButton("Delete Account", () async {
                             if (account.balance > 0) {

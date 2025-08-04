@@ -34,10 +34,10 @@ class UserRegisterCubit extends Cubit<UserRegisterState> {
      if(result != null) {
        emit(UserRegisterSuccess(user: result.user, token: result.token));
      } else {
-       emit(UserRegisterError(message: "Registration failed"));
+       emit(UserRegisterError(message: "An unexpected error occurred"));
      }
     } catch (e) {
-      emit(UserRegisterError(message: "registration failed $e"));
+      emit(UserRegisterError(message: "$e"));
     }
   }
 }

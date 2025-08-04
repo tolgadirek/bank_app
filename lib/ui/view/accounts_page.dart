@@ -84,6 +84,8 @@ class _AccountsPageState extends State<AccountsPage> {
                               itemCount: accounts.length,
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
+                              // Yani bu iki satırı singlechildscroolviewı tüm sayfa için kullanırsak liste içinde aşağı inme olmasın
+                              //sadece tüm sayfa için kaydırma olsun dersek kullanırız.
                               itemBuilder: (context, index) {
                                 final account = accounts[index];
                                 return GestureDetector(

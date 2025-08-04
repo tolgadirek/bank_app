@@ -1,4 +1,3 @@
-import 'package:bank_app/data/entity/account_model.dart';
 import 'package:bank_app/data/entity/transaction_model.dart';
 import 'package:bank_app/data/repo/repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,12 +24,35 @@ class TransactionCubit extends Cubit<TransactionState> {
   var repo = Repository();
   List<TransactionModel> currentTransactions = [];
 
+  Future<bool> validateTransactionDetails(
+      int accountId,
+      String type,
+      double amount,
+      {String? relatedIban, String? relatedFirstName, String? relatedLastName,}) async {
+    try {
+      final result = await repo.validateTransactionDetails(
+        accountId,
+        type,
+        amount,
+        relatedIban: relatedIban,
+        relatedFirstName: relatedFirstName,
+        relatedLastName: relatedLastName,
+      );
+      return result;
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
   Future<void> createTransaction(
-      int accountId, String type, double amount, AccountModel? relatedAccount,
-      {String? relatedIban, String? relatedFirstName,String? relatedLastName}) async {
+      int accountId, String type, double amount,
+      {String? relatedIban, String? relatedFirstName, String? relatedLastName,}) async {
     try{
-      final response = await repo.createTransaction(accountId, type, amount, relatedAccount,
-      relatedIban: relatedIban, relatedFirtName: relatedFirstName, relatedLastName: relatedLastName);
+      final response = await repo.createTransaction(
+        accountId, type, amount,
+        relatedIban: relatedIban,
+        relatedFirstName: relatedFirstName,
+        relatedLastName: relatedLastName,);
 
       if (response != null) {
         currentTransactions = [...currentTransactions, response.transaction];
@@ -38,6 +60,7 @@ class TransactionCubit extends Cubit<TransactionState> {
       }
     } catch (e) {
       emit(TransactionError(message: "Transaction could not be created: $e"));
+      throw e.toString();
     }
   }
 
