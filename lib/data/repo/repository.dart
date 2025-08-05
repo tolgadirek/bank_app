@@ -2,6 +2,7 @@ import 'package:bank_app/data/entity/account_model.dart';
 import 'package:bank_app/data/entity/account_response_model.dart';
 import 'package:bank_app/data/entity/transaction_model.dart';
 import 'package:bank_app/data/entity/transaction_response_model.dart';
+import 'package:bank_app/data/entity/user_model.dart';
 import 'package:bank_app/data/entity/user_response_model.dart';
 import 'package:bank_app/data/services/dio_service.dart';
 import 'package:dio/dio.dart';
@@ -63,6 +64,47 @@ class Repository {
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
+  }
+
+  Future<UserModel?> getprofile() async {
+    final authDio = await DioService.getAuthorizedDio();
+    try {
+      final response = await authDio.get("/auth/profile");
+      final data = response.data["user"];
+      print("get proifle: $data");
+      return UserModel.fromJson(data);
+    } on DioException catch (e) {
+      final message = e.response?.data["message"] ?? "Server Error";
+      throw message;
+    } catch (e) {
+      print("Hata: $e");
+      throw "Error: $e";
+    }
+  }
+
+  Future<UserModel?> updateUser(
+      String email, String firstName, String lastName,
+      String phoneNumber,  {String? password}) async {
+    final authDio = await DioService.getAuthorizedDio();
+
+    try {
+      final response = await authDio.post("/auth/update", data: {
+        "firstName": firstName,
+        "lastName": lastName,
+        "email": email,
+        "phoneNumber": phoneNumber,
+        "password": password
+      });
+
+      print(" update:  ${response.data["user"]}");
+      return UserModel.fromJson(response.data["user"]);
+    } on DioException catch (e) {
+      final message = e.response?.data["message"] ?? "Server Error";
+      throw message;
+    } catch (e) {
+      print("Hata: $e");
+      throw "Error: $e";
+    }
   }
 
   Future<AccountResponseModel?> createBankAccount(String name) async {

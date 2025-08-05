@@ -43,7 +43,7 @@ class BankAccountsCubit extends Cubit<BankAccountState> {
       currentAccounts = accounts;
       emit(BankAccountLoaded(accounts: accounts));
     } catch (e) {
-      emit(BankAccountError(message: "Hesaplar getirilemedi: $e"));
+      emit(BankAccountError(message: "An error occurred."));
     }
   }
 
@@ -53,8 +53,6 @@ class BankAccountsCubit extends Cubit<BankAccountState> {
       if (success) {
         currentAccounts.removeWhere((account) => account.id == id);
         emit(BankAccountLoaded(accounts: List.from(currentAccounts)));
-      } else {
-        emit(BankAccountError(message: "Silme işlemi başarısız."));
       }
     } catch (e) {
       throw e.toString();

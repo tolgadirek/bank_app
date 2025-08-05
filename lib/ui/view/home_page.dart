@@ -1,5 +1,6 @@
 import 'package:bank_app/data/entity/account_model.dart';
 import 'package:bank_app/ui/cubit/bank_accounts_cubit.dart';
+import 'package:bank_app/ui/cubit/user_info_cubit.dart';
 import 'package:bank_app/ui/cubit/user_login_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,9 +23,10 @@ class _HomePageState extends State<HomePage> {
     final loginState = context.read<UserLoginCubit>().state;
     if (loginState is UserLoginSuccess) {
       final userId = loginState.user.id.toString();
-      loadSayac(userId);
+      loadSayac(userId); //Hesap adı içindeki numaralandırma için
     }
     context.read<BankAccountsCubit>().getBankAccounts();
+    context.read<UserInfoCubit>().getProfile();
   }
 
   // Sayaçı SharedPreferences'tan yükle
@@ -57,7 +59,18 @@ class _HomePageState extends State<HomePage> {
         child: Padding(
           padding: EdgeInsets.all(15.r),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              BlocBuilder<UserInfoCubit, UserInfoState>(
+                builder: (context, state) {
+                  if (state is UserInfoSuccess) {
+                    return Text("Hello ${state.user.firstName},",
+                      style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),);
+                  } else {
+                    return Center();
+                  }
+                },
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

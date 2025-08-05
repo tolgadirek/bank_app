@@ -57,6 +57,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                 children: [
                                   Text(transaction.type, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17.sp),),
                                   Text(transaction.description, style: TextStyle(fontSize: 16.sp),),
+                                  SizedBox(height: 10.h,),
                                   Text("${transaction.createdAt}".split(".")[0], style: TextStyle(fontSize: 16.sp),),
                                 ],
                               ),
