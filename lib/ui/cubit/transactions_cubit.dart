@@ -1,5 +1,6 @@
 import 'package:bank_app/data/entity/transaction_model.dart';
 import 'package:bank_app/data/repo/repository.dart';
+import 'package:bank_app/data/services/dio_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class TransactionState {}
@@ -21,7 +22,7 @@ class TransactionError extends TransactionState {
 class TransactionCubit extends Cubit<TransactionState> {
   TransactionCubit():super(TransactionInitial());
 
-  var repo = Repository();
+  var repo = Repository(dio: DioService.dio);
   List<TransactionModel> currentTransactions = [];
 
   Future<bool> validateTransactionDetails(

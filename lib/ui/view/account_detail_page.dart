@@ -52,7 +52,7 @@ class _AccountDetailPageState extends State<AccountDetailPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(account.accountNumber, style: TextStyle(fontSize: 16.sp),),
+                              Text(account.accountNumber, key: const Key('accountNumberTop'), style: TextStyle(fontSize: 16.sp),),
                               Text("${account.balance}", style: TextStyle(fontSize: 16.sp)),
                             ],
                           ),
@@ -80,14 +80,30 @@ class _AccountDetailPageState extends State<AccountDetailPage> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("First and Last Name", style: TextStyle(color: Colors.grey, fontSize: 16.sp),),
-                                      Text("${account.user?.firstName} ${account.user?.lastName}", style: TextStyle(fontSize: 16.sp),),
+                                      Flexible(
+                                          child: Text(
+                                            "${account.user?.firstName} ${account.user?.lastName}",
+                                            style: TextStyle(fontSize: 16.sp),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            textAlign: TextAlign.right,
+                                          )
+                                      ),
                                     ],
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("Costumer Email", style: TextStyle(color: Colors.grey, fontSize: 16.sp),),
-                                      Text("${account.user?.email}", style: TextStyle(fontSize: 16.sp),),
+                                      Flexible(
+                                          child: Text(
+                                            "${account.user?.email}",
+                                            style: TextStyle(fontSize: 16.sp),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            textAlign: TextAlign.right,
+                                          )
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -111,14 +127,29 @@ class _AccountDetailPageState extends State<AccountDetailPage> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("Account Name", style: TextStyle(color: Colors.grey, fontSize: 16.sp),),
-                                      Text(account.name, style: TextStyle(fontSize: 16.sp),),
+                                      Flexible(
+                                        child: Text(
+                                          account.name,
+                                          style: TextStyle(fontSize: 16.sp),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          textAlign: TextAlign.right,),
+                                      ),
                                     ],
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("Account Number", style: TextStyle(color: Colors.grey, fontSize: 16.sp),),
-                                      Text(account.accountNumber, style: TextStyle(fontSize: 16.sp),),
+                                      Flexible(
+                                        child: Text(
+                                          account.accountNumber,
+                                          key: const Key('accountNumberInfo'),
+                                          style: TextStyle(fontSize: 16.sp),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          textAlign: TextAlign.right,),
+                                      ),
                                     ],
                                   ),
                                   Row(
@@ -132,21 +163,45 @@ class _AccountDetailPageState extends State<AccountDetailPage> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("Account Opening Date", style: TextStyle(color: Colors.grey, fontSize: 16.sp),),
-                                      Text("${account.createdAt}".split(" ")[0], style: TextStyle(fontSize: 16.sp),),
+                                      Flexible(
+                                        child: Text(
+                                          "${account.createdAt}".split(" ")[0],
+                                          style: TextStyle(fontSize: 16.sp),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          textAlign: TextAlign.right,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("Account Type", style: TextStyle(color: Colors.grey, fontSize: 16.sp),),
-                                      Text("Current Account", style: TextStyle(fontSize: 16.sp),),
+                                      Flexible(
+                                        child: Text(
+                                          "Current Account",
+                                          style: TextStyle(fontSize: 16.sp),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          textAlign: TextAlign.right,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text("Account Opening Purpose", style: TextStyle(color: Colors.grey, fontSize: 16.sp),),
-                                      Text("Personel", style: TextStyle(fontSize: 16.sp),),
+                                      Flexible(
+                                          child: Text(
+                                            "Personel",
+                                            style: TextStyle(fontSize: 16.sp),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            textAlign: TextAlign.right,
+                                          )
+                                      ),
                                     ],
                                   ),
                                   Row(

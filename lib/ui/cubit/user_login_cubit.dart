@@ -1,5 +1,6 @@
 import 'package:bank_app/data/entity/user_model.dart';
 import 'package:bank_app/data/repo/repository.dart';
+import 'package:bank_app/data/services/dio_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class UserLoginState {}
@@ -25,7 +26,7 @@ class UserLoginError extends UserLoginState {
 class UserLoginCubit extends Cubit<UserLoginState> {
   UserLoginCubit() : super(UserLoginInitial());
 
-  var repo = Repository();
+  var repo = Repository(dio: DioService.dio);
 
   Future<void> login(String email, String password) async {
     emit(UserLoginLoading());

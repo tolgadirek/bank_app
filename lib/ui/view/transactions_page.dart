@@ -61,8 +61,13 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                   Text("${transaction.createdAt}".split(".")[0], style: TextStyle(fontSize: 16.sp),),
                                 ],
                               ),
-                              Text(getAmountText(transaction),
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp, color: getAmountColor(transaction)),)
+                              Flexible(
+                                child: Text(
+                                  getAmountText(transaction),
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp, color: getAmountColor(transaction)),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              )
                             ],
                           ),
                           Divider(),

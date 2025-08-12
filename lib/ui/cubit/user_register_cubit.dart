@@ -1,5 +1,6 @@
 import 'package:bank_app/data/entity/user_model.dart';
 import 'package:bank_app/data/repo/repository.dart';
+import 'package:bank_app/data/services/dio_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class UserRegisterState {}
@@ -25,7 +26,7 @@ class UserRegisterError extends UserRegisterState {
 class UserRegisterCubit extends Cubit<UserRegisterState> {
   UserRegisterCubit() : super(UserRegisterInitial());
 
-  var repo = Repository();
+  var repo = Repository(dio: DioService.dio);
 
   Future<void> register(String email, String password, String firstName, String lastName, String phoneNumber) async {
     emit(UserRegisterLoading());

@@ -1,5 +1,6 @@
 import 'package:bank_app/data/entity/account_model.dart';
 import 'package:bank_app/data/repo/repository.dart';
+import 'package:bank_app/data/services/dio_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class AccountDetailState {}
@@ -21,7 +22,7 @@ class AccountDetailError extends AccountDetailState {
 class AccountDetailCubit extends Cubit<AccountDetailState> {
   AccountDetailCubit():super(AccountDetailInitial());
   
-  var repo = Repository();
+  var repo = Repository(dio: DioService.dio);
   
   Future<void> getAccountById(int id) async {
     emit(AccountDetailLoading());

@@ -60,7 +60,13 @@ class _SettingsPageState extends State<SettingsPage> {
                         Row(
                           children: [
                             Text("Account Opening Date: ", style: TextStyle(fontSize: 16.sp),),
-                            Text("${user.createdAt}".split(" ")[0], style: TextStyle(fontSize: 16.sp),)
+                            Flexible(
+                                child: Text(
+                                  "${user.createdAt}".split(" ")[0],
+                                  style: TextStyle(fontSize: 16.sp),
+                                  overflow: TextOverflow.ellipsis,
+                                )
+                            )
                           ],
                         ),
                         SizedBox(height: 30.h,),

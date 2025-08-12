@@ -1,5 +1,6 @@
 import 'package:bank_app/data/entity/user_model.dart';
 import 'package:bank_app/data/repo/repository.dart';
+import 'package:bank_app/data/services/dio_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class UserInfoState {}
@@ -21,7 +22,7 @@ class UserInfoError extends UserInfoState {
 class UserInfoCubit extends Cubit<UserInfoState> {
   UserInfoCubit() : super(UserInfoInitial());
 
-  var repo = Repository();
+  var repo = Repository(dio: DioService.dio);
 
   Future<void> getProfile() async {
     emit(UserInfoLoading());

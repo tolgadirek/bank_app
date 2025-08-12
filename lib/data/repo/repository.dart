@@ -9,7 +9,14 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Repository {
-  final Dio dio = DioService.dio;
+  final Dio dio;
+
+  final Future<Dio> Function() authDio;
+
+  Repository({
+    required this.dio,
+    Future<Dio> Function()? authDio,
+  }) : authDio = authDio ?? DioService.getAuthorizedDio;
 
   Future<UserResponseModel?> register(String email, String password, String firstName, String lastName, String phoneNumber) async {
     try{

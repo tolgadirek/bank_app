@@ -67,7 +67,14 @@ class _AccountsPageState extends State<AccountsPage> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text("Avaliable Balance", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
-                                        Text("$totalBalance TL", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
+                                        Flexible(
+                                            child: Text(
+                                              "$totalBalance TL",
+                                              style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            )
+                                        ),
                                       ],
                                     ),
                                   ],
@@ -110,14 +117,28 @@ class _AccountsPageState extends State<AccountsPage> {
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text("Balance", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
-                                              Text("${account.balance} TL", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
+                                              Flexible(
+                                                  child: Text(
+                                                    "${account.balance} TL",
+                                                    style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                                                    overflow: TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                  )
+                                              ),
                                             ],
                                           ),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text("Avaliable Balance", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
-                                              Text("${account.balance} TL", style: TextStyle(fontSize: 16.sp, color: Colors.grey),),
+                                              Flexible(
+                                                  child: Text(
+                                                    "${account.balance} TL",
+                                                    style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                                                    overflow: TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                  )
+                                              ),
                                             ],
                                           ),
                                         ],

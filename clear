@@ -1,0 +1,47 @@
+[33mcommit a642194a0eacb4d8b1708d5fe70d132a938cc66c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Tolga Direk <103821299+tolgadirek@users.noreply.github.com>
+Date:   Wed Aug 6 13:25:04 2025 +0300
+
+    Update README.md
+
+[33mcommit 42f8af4814618293649f091b78221ec5aee4300b[m
+Author: Tolga Direk <tolgadirek45@gmail.com>
+Date:   Tue Aug 5 16:33:18 2025 +0300
+
+    Ayarlar sayfası tamamlandı
+
+[33mcommit 37873e59421c78996456044330a9cd70ea6b9550[m
+Author: Tolga Direk <tolgadirek45@gmail.com>
+Date:   Mon Aug 4 16:42:46 2025 +0300
+
+    transfer ve atm sayfaları tamamlandı.
+
+[33mcommit e5a8126f13ab77494a781fc2fea96a6557b033d5[m
+Author: Tolga Direk <tolgadirek45@gmail.com>
+Date:   Fri Aug 1 16:49:23 2025 +0300
+
+    Transactions arayüzü ve  işlemleri bitti. transfer arayüzü başlandı
+
+[33mcommit 5fcec582f27d673426798c74f1ca49cddd04436d[m
+Author: Tolga Direk <tolgadirek45@gmail.com>
+Date:   Thu Jul 31 19:37:14 2025 +0300
+
+    Hesap detay sayfası yapıldı.
+
+[33mcommit 680b7fb654bb7ebbf98b16189ded8e1b449baa03[m
+Author: Tolga Direk <tolgadirek45@gmail.com>
+Date:   Wed Jul 30 16:06:58 2025 +0300
+
+    Banka hesabı oluşturma ve listeleme
+
+[33mcommit 85f4e85de3c01abc2a52ed18f411313fbf57a6c2[m
+Author: Tolga Direk <tolgadirek45@gmail.com>
+Date:   Tue Jul 29 11:42:20 2025 +0300
+
+    Kayıt ve Giriş işlemleri yapıldı
+
+[33mcommit 6ac4db169e1040f74be865d9546f3cc672f1ff04[m
+Author: Tolga Direk <tolgadirek45@gmail.com>
+Date:   Mon Jul 28 16:52:58 2025 +0300
+
+    Giriş ve kayıt sayfa tasarımı yapıldı
