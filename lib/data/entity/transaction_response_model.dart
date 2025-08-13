@@ -1,7 +1,7 @@
 import 'package:bank_app/data/entity/transaction_model.dart';
 
 class TransactionResponseModel {
-  final int status;
+  final String status;
   final TransactionModel transaction;
 
   TransactionResponseModel({
@@ -11,8 +11,14 @@ class TransactionResponseModel {
 
   factory TransactionResponseModel.fromJson(Map<String, dynamic> json) {
     return TransactionResponseModel(
-      status: json['status'],
-      transaction: TransactionModel.fromJson(json["transaction"])
+      status: json['status']?.toString() ?? '',
+      transaction: TransactionModel.fromJson(
+        (json['transaction'] is Map<String, dynamic>)
+            ? json['transaction'] as Map<String, dynamic>
+            : (json['transaction'] is Map
+            ? Map<String, dynamic>.from(json['transaction'] as Map)
+            : <String, dynamic>{}),
+      ),
     );
   }
 }

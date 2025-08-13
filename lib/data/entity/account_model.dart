@@ -7,7 +7,7 @@ class AccountModel {
   String iban;
   double balance;
   DateTime createdAt;
-  UserModel? user; // Ekledik
+  UserModel? user;
 
   AccountModel({required this.id, required this.name, required this.accountNumber,
     required this.iban, required this.balance, required this.createdAt, this.user});

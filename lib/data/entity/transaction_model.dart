@@ -22,18 +22,22 @@ class TransactionModel {
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
+    int _asInt(dynamic v) =>
+        (v is num) ? v.toInt() : int.parse(v.toString());
+    double _asDouble(dynamic v) =>
+        (v is num) ? v.toDouble() : double.parse(v.toString());
+
+    final rel = json['relatedAccount'];
     return TransactionModel(
-      id: json['id'],
-      accountId: json['accountId'],
-      type: json['type'],
-      amount: (json['amount'] as num).toDouble(),
-      description: json['description'],
-      createdAt: DateTime.parse(json['createdAt']),
-      relatedAccount: json['relatedAccount'] != null
-          ? AccountModel.fromJson(json['relatedAccount'])
-          : null,
+      id: _asInt(json['id']),
+      accountId: _asInt(json['accountId']),
+      type: json['type']?.toString() ?? '',
+      amount: _asDouble(json['amount']),
+      description: json['description']?.toString() ?? '', // <-- default
+      createdAt: DateTime.parse(json['createdAt'].toString()),
+      relatedAccount: (rel is Map<String, dynamic>)
+          ? AccountModel.fromJson(rel)
+          : (rel is Map ? AccountModel.fromJson(Map<String, dynamic>.from(rel)) : null),
     );
   }
 }
-
-

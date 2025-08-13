@@ -6,451 +6,336 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bank_app/data/repo/repository.dart';
-import 'package:bank_app/data/entity/user_response_model.dart';
 import 'package:bank_app/data/entity/user_model.dart';
+import 'package:bank_app/data/entity/user_response_model.dart';
 import 'package:bank_app/data/entity/account_model.dart';
 import 'package:bank_app/data/entity/account_response_model.dart';
 import 'package:bank_app/data/entity/transaction_model.dart';
 import 'package:bank_app/data/entity/transaction_response_model.dart';
 
-// Bu dosya build_runner ile üretilecek
 import 'repository_test.mocks.dart';
 
 @GenerateMocks([Dio])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late MockDio mockDio;       // public requestler (register/login)
-  late MockDio mockDioAuth;   // authorized requestler (profile, account, tx)
+  late MockDio mockDio;       // public istekler (register/login)
+  late MockDio mockAuthDio;   // authorized istekler (profile/account/tx)
   late Repository repository;
 
+  Map<String, dynamic> userJson({
+    int id = 1,
+    String email = 'tolga@gmail.com',
+    String first = 'Tolga',
+    String last = 'Direk',
+    String phone = '5551112233',
+    String createdAt = '2025-08-01T10:00:00.000Z',
+  }) => {
+    "id": id,
+    "email": email,
+    "firstName": first,
+    "lastName": last,
+    "phoneNumber": phone,
+    "createdAt": createdAt,
+  };
+
+  Map<String, dynamic> accountJson({
+    int id = 10,
+    int userId = 1,
+    String name = 'Main',
+    String iban = 'TR00011234567890',
+    String accountNumber = '1234567890',
+    String createdAt = '2025-08-01T10:00:00.000Z',
+    double balance = 1500.0,
+  }) => {
+    "id": id,
+    "userId": userId,
+    "name": name,
+    "iban": iban,
+    "accountNumber": accountNumber,
+    "createdAt": createdAt,
+    "balance": balance,
+  };
+
+  Map<String, dynamic> transactionJson({
+    int id = 100,
+    int accountId = 10,
+    String type = 'deposit', // deposit | withdraw | transfer_in | transfer_out
+    double amount = 250.0,
+    String createdAt = '2025-08-02T12:00:00.000Z',
+    String? relatedIban = 'TR00018765432100',
+    String? relatedFirstName = 'Ali',
+    String? relatedLastName = 'Veli',
+  }) => {
+    "id": id,
+    "accountId": accountId,
+    "type": type,
+    "amount": amount,
+    "createdAt": createdAt,
+    "relatedIban": relatedIban,
+    "relatedFirstName": relatedFirstName,
+    "relatedLastName": relatedLastName,
+  };
+
+  Response<T> ok<T>(String path, {T? data, int statusCode = 200}) =>
+      Response<T>(requestOptions: RequestOptions(path: path), data: data, statusCode: statusCode);
+
+  DioException dioErr(String path, {int code = 400, String msg = "Invalid"}) =>
+      DioException(
+        requestOptions: RequestOptions(path: path),
+        response: Response(requestOptions: RequestOptions(path: path), statusCode: code, data: {"message": msg}),
+        type: DioExceptionType.badResponse,
+      );
+
   setUp(() async {
-    // SharedPreferences mock belleği
     SharedPreferences.setMockInitialValues({});
-
     mockDio = MockDio();
-    mockDioAuth = MockDio();
-
+    mockAuthDio = MockDio();
     repository = Repository(
       dio: mockDio,
-      authDio: () async => mockDioAuth, // kritik: authorized Dio’yu enjekte ettik
+      authDio: () async => mockAuthDio,
     );
   });
 
-  group('Auth - register', () {
-    test('register success returns UserResponseModel and saves token', () async {
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/auth/register'),
-        statusCode: 200,
-        data: {
-          "token": "jwt_token_123",
-          "user": {
-            "id": 1,
-            "email": "test@mail.com",
-            "firstName": "Tolga",
-            "lastName": "Direk",
-            "phoneNumber": "5550001122",
-            "createdAt": DateTime.now().toIso8601String(),
-          }
-        },
-      );
+  group('Auth', () {
+    test('register success → token kaydedilir ve UserResponseModel döner', () async {
+      when(mockDio.post("/auth/register", data: anyNamed('data'))).thenAnswer((_) async {
+        final data = {
+          "token": "abc123",
+          "user": userJson(),
+        };
+        return ok("/auth/register", data: data);
+      });
 
-      when(mockDio.post(
-        '/auth/register',
-        data: anyNamed('data'),
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onSendProgress: anyNamed('onSendProgress'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenAnswer((_) async => fakeResponse);
+      final res = await repository.register("x@y.com", "123456", "Tolga", "Direk", "5551112233");
 
-      final result = await repository.register(
-        "test@mail.com", "123456", "Tolga", "Direk", "5550001122",
-      );
-
-      expect(result, isA<UserResponseModel>());
+      expect(res, isA<UserResponseModel>());
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('token'), equals('jwt_token_123'));
+      expect(prefs.getString('token'), "abc123");
+      expect(res!.user.email, "tolga@gmail.com");
     });
 
-    test('register error throws server message', () async {
-      final errorResponse = Response(
-        requestOptions: RequestOptions(path: '/auth/register'),
-        statusCode: 400,
-        data: {"message": "Email already exists"},
-      );
-
-      when(mockDio.post(
-        '/auth/register',
-        data: anyNamed('data'),
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onSendProgress: anyNamed('onSendProgress'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenThrow(
-        DioException.badResponse(
-          requestOptions: errorResponse.requestOptions,
-          response: errorResponse, statusCode: 400,
-        ),
-      );
+    test('register error (DioException) → message throw', () async {
+      when(mockDio.post("/auth/register", data: anyNamed('data')))
+          .thenThrow(dioErr("/auth/register", msg: "Email used"));
 
       expect(
-            () => repository.register("a@b.com", "123456", "A", "B", "555"),
-        throwsA("Email already exists"),
+            () => repository.register("x@y.com", "123456", "A", "B", "1"),
+        throwsA("Email used"),
       );
     });
-  });
 
-  group('Auth - login', () {
-    test('login success returns UserResponseModel and replaces token', () async {
-      // ilk önce varmış gibi bir token yazalım
+    test('login success → eski token silinir, yeni token kaydedilir', () async {
+      SharedPreferences.setMockInitialValues({"token": "old_token"});
+      when(mockDio.post("/auth/login", data: anyNamed('data'))).thenAnswer((_) async {
+        final data = {
+          "token": "new_token",
+          "user": userJson(),
+        };
+        return ok("/auth/login", data: data);
+      });
+
+      final res = await repository.login("x@y.com", "123456");
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', 'old_token');
 
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/auth/login'),
-        statusCode: 200,
-        data: {
-          "token": "new_token_999",
-          "user": {
-            "id": 2,
-            "email": "x@y.com",
-            "firstName": "X",
-            "lastName": "Y",
-            "phoneNumber": "555",
-            "createdAt": DateTime.now().toIso8601String(),
-          }
-        },
-      );
-
-      when(mockDio.post(
-        '/auth/login',
-        data: anyNamed('data'),
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onSendProgress: anyNamed('onSendProgress'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenAnswer((_) async => fakeResponse);
-
-      final result = await repository.login("x@y.com", "123456");
-      expect(result, isA<UserResponseModel>());
-      expect(prefs.getString('token'), equals('new_token_999'));
+      expect(res, isA<UserResponseModel>());
+      expect(prefs.getString('token'), "new_token");
+      verify(mockDio.post("/auth/login", data: anyNamed('data'))).called(1);
     });
 
-    test('login error throws message', () async {
-      final errorResponse = Response(
-        requestOptions: RequestOptions(path: '/auth/login'),
-        statusCode: 401,
-        data: {"message": "Invalid credentials"},
-      );
+    test('login error (DioException) → message throw', () async {
+      when(mockDio.post("/auth/login", data: anyNamed('data')))
+          .thenThrow(dioErr("/auth/login", msg: "Wrong credentials"));
 
-      when(mockDio.post(
-        '/auth/login',
-        data: anyNamed('data'),
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onSendProgress: anyNamed('onSendProgress'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenThrow(
-        DioException.badResponse(
-          requestOptions: errorResponse.requestOptions,
-          response: errorResponse, statusCode: 400,
-        ),
-      );
-
-      expect(
-            () => repository.login("x@y.com", "wrong"),
-        throwsA("Invalid credentials"),
-      );
+      expect(() => repository.login("a", "b"), throwsA("Wrong credentials"));
     });
   });
 
   group('Profile', () {
-    test('getprofile returns UserModel', () async {
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/auth/profile'),
-        statusCode: 200,
-        data: {
-          "user": {
-            "id": 5,
-            "email": "pro@mail.com",
-            "firstName": "Pro",
-            "lastName": "File",
-            "phoneNumber": "5551112233",
-            "createdAt": DateTime.now().toIso8601String(),
-          }
-        },
-      );
+    test('getprofile success', () async {
+      when(mockAuthDio.get("/auth/profile")).thenAnswer((_) async {
+        final data = {"user": userJson()};
+        return ok("/auth/profile", data: data);
+      });
 
-      when(mockDioAuth.get(
-        '/auth/profile',
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenAnswer((_) async => fakeResponse);
-
-      final result = await repository.getprofile();
-      expect(result, isA<UserModel>());
-      expect(result!.email, "pro@mail.com");
+      final user = await repository.getprofile();
+      expect(user, isA<UserModel>());
+      expect(user!.firstName, "Tolga");
     });
 
-    test('updateUser returns updated UserModel', () async {
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/auth/update'),
-        statusCode: 200,
-        data: {
-          "user": {
-            "id": 5,
-            "email": "new@mail.com",
-            "firstName": "New",
-            "lastName": "Name",
-            "phoneNumber": "5552223344",
-            "createdAt": DateTime.now().toIso8601String(),
-          }
-        },
-      );
+    test('getprofile error → message throw', () async {
+      when(mockAuthDio.get("/auth/profile")).thenThrow(dioErr("/auth/profile", msg: "Unauthorized"));
+      expect(() => repository.getprofile(), throwsA("Unauthorized"));
+    });
 
-      when(mockDioAuth.post(
-        '/auth/update',
-        data: anyNamed('data'),
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onSendProgress: anyNamed('onSendProgress'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenAnswer((_) async => fakeResponse);
+    test('updateUser success', () async {
+      when(mockAuthDio.post("/auth/update", data: anyNamed('data'))).thenAnswer((_) async {
+        final data = {"user": userJson(first: "Mert", last: "Soygaz")};
+        return ok("/auth/update", data: data);
+      });
 
-      final result = await repository.updateUser(
-        "new@mail.com", "New", "Name", "5552223344",
-      );
-      expect(result, isA<UserModel>());
-      expect(result!.email, "new@mail.com");
+      final u = await repository.updateUser("e", "Mert", "Soygaz", "5");
+      expect(u, isA<UserModel>());
+      expect(u!.firstName, "Mert");
+      expect(u.lastName, "Soygaz");
+    });
+
+    test('updateUser error → message throw', () async {
+      when(mockAuthDio.post("/auth/update", data: anyNamed('data')))
+          .thenThrow(dioErr("/auth/update", msg: "Email invalid"));
+      expect(() => repository.updateUser("bad", "A", "B", "5"), throwsA("Email invalid"));
     });
   });
 
   group('Accounts', () {
-    test('createBankAccount returns AccountResponseModel', () async {
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/account'),
-        statusCode: 201,
-        data: {
+    test('createBankAccount success', () async {
+      when(mockAuthDio.post("/account", data: anyNamed('data'))).thenAnswer((_) async {
+        final data = {
           "status": "Created",
-          "account": {
-            "id": 10,
-            "userId": 5,
-            "name": "Main",
-            "accountNumber": "1234567890",
-            "iban": "TR00011234567890",
-            "balance": 0,
-            "createdAt": DateTime.now().toIso8601String(),
-          }
-        },
-      );
+          "account": accountJson(),
+        };
+        return ok("/account", data: data, statusCode: 201);
+      });
 
-      when(mockDioAuth.post(
-        '/account',
-        data: anyNamed('data'),
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onSendProgress: anyNamed('onSendProgress'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenAnswer((_) async => fakeResponse);
-
-      final result = await repository.createBankAccount("Main");
-      expect(result, isA<AccountResponseModel>());
-      expect(result!.account.name, "Main");
+      final res = await repository.createBankAccount("Main");
+      expect(res, isA<AccountResponseModel>());
+      expect(res!.account.name, "Main");
     });
 
-    test('getBankAccounts returns list<AccountModel>', () async {
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/account'),
-        statusCode: 200,
-        data: {
-          "accounts": [
-            {
-              "id": 1, "userId": 5, "name": "A",
-              "accountNumber": "111", "iban": "TR000111", "balance": 100.0,
-              "createdAt": DateTime.now().toIso8601String(),
-            },
-            {
-              "id": 2, "userId": 5, "name": "B",
-              "accountNumber": "222", "iban": "TR000222", "balance": 0.0,
-              "createdAt": DateTime.now().toIso8601String(),
-            },
-          ]
-        },
-      );
-
-      when(mockDioAuth.get(
-        '/account',
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenAnswer((_) async => fakeResponse);
-
-      final result = await repository.getBankAccounts();
-      expect(result, isA<List<AccountModel>>());
-      expect(result.length, 2);
-      expect(result[0].name, "A");
+    test('createBankAccount error → message throw', () async {
+      when(mockAuthDio.post("/account", data: anyNamed('data')))
+          .thenThrow(dioErr("/account", msg: "Name required"));
+      expect(() => repository.createBankAccount(""), throwsA("Name required"));
     });
 
-    test('getAccountById returns null when not found', () async {
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/account/999'),
-        statusCode: 200,
-        data: {"account": null},
-      );
+    test('getBankAccounts success → liste maplenir', () async {
+      when(mockAuthDio.get("/account")).thenAnswer((_) async {
+        final data = {
+          "accounts": [accountJson(id: 10), accountJson(id: 11, name: 'Savings')],
+        };
+        return ok("/account", data: data);
+      });
 
-      when(mockDioAuth.get(
-        '/account/999',
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenAnswer((_) async => fakeResponse);
-
-      final result = await repository.getAccountById(999);
-      expect(result, isNull);
+      final list = await repository.getBankAccounts();
+      expect(list, isA<List<AccountModel>>());
+      expect(list.length, 2);
+      expect(list[1].name, 'Savings');
     });
 
-    test('deleteAccount returns true on 200', () async {
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/account/1'),
-        statusCode: 200,
-        data: {"status": "OK"},
-      );
-
-      when(mockDioAuth.delete(
-        '/account/1',
-        data: anyNamed('data'),
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-      )).thenAnswer((_) async => fakeResponse);
-
-      final ok = await repository.deleteAccount(1);
-      expect(ok, isTrue);
+    test('getBankAccounts error → boş liste', () async {
+      when(mockAuthDio.get("/account")).thenThrow(Exception('boom'));
+      final list = await repository.getBankAccounts();
+      expect(list, isEmpty);
     });
 
-    test('deleteAccount throws message on server error', () async {
-      final errorResponse = Response(
-        requestOptions: RequestOptions(path: '/account/1'),
-        statusCode: 400,
-        data: {"message": "Cannot delete"},
-      );
+    test('getAccountById success', () async {
+      when(mockAuthDio.get("/account/10")).thenAnswer((_) async {
+        final data = {"account": accountJson(id: 10, name: "Detail")};
+        return ok("/account/10", data: data);
+      });
 
-      when(mockDioAuth.delete(
-        '/account/1',
-        data: anyNamed('data'),
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-      )).thenThrow(
-        DioException.badResponse(
-          requestOptions: errorResponse.requestOptions,
-          response: errorResponse, statusCode: 400,
-        ),
-      );
+      final acc = await repository.getAccountById(10);
+      expect(acc, isA<AccountModel>());
+      expect(acc!.name, "Detail");
+    });
 
-      expect(() => repository.deleteAccount(1), throwsA("Cannot delete"));
+     test('getAccountById not found → null', () async {
+      when(mockAuthDio.get("/account/99")).thenAnswer((_) async {
+        final data = {"account": null};
+        return ok("/account/99", data: data);
+      });
+
+      final acc = await repository.getAccountById(99);
+      expect(acc, isNull);
+    });
+
+    test('getAccountById error → null', () async {
+      when(mockAuthDio.get("/account/1")).thenThrow(Exception('db down'));
+      final acc = await repository.getAccountById(1);
+      expect(acc, isNull);
+    });
+
+    test('deleteAccount success → true', () async {
+      when(mockAuthDio.delete("/account/10")).thenAnswer((_) async {
+        return ok("/account/10", statusCode: 200);
+      });
+
+      final okRes = await repository.deleteAccount(10);
+      expect(okRes, true);
+    });
+
+    test('deleteAccount error → message throw', () async {
+      when(mockAuthDio.delete("/account/10"))
+          .thenThrow(dioErr("/account/10", code: 500, msg: "Server Error"));
+      expect(() => repository.deleteAccount(10), throwsA("Server Error"));
     });
   });
 
   group('Transactions', () {
-    test('validateTransactionDetails returns true on 200', () async {
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/transaction/validate'),
-        statusCode: 200,
-        data: {"ok": true},
-      );
+    test('validateTransactionDetails success → true', () async {
+      when(mockAuthDio.post("/transaction/validate", data: anyNamed('data')))
+          .thenAnswer((_) async => ok("/transaction/validate"));
 
-      when(mockDioAuth.post(
-        '/transaction/validate',
-        data: anyNamed('data'),
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onSendProgress: anyNamed('onSendProgress'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenAnswer((_) async => fakeResponse);
-
-      final ok = await repository.validateTransactionDetails(
-        1, "DEPOSIT", 100.0,
+      final okRes = await repository.validateTransactionDetails(
+        10, "deposit", 100.0,
+        relatedIban: "TR...", relatedFirstName: "Ali", relatedLastName: "Veli",
       );
-      expect(ok, isTrue);
+      expect(okRes, true);
     });
 
-    test('createTransaction returns TransactionResponseModel', () async {
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/transaction'),
-        statusCode: 201,
-        data: {
-          "status": "Created",
-          "transaction": {
-            "id": 50,
-            "accountId": 1,
-            "type": "DEPOSIT",
-            "amount": 100.0,
-            "description": "Money Deposited",
-            "createdAt": DateTime.now().toIso8601String(),
-          }
-        },
+    test('validateTransactionDetails error → message throw', () async {
+      when(mockAuthDio.post("/transaction/validate", data: anyNamed('data')))
+          .thenThrow(dioErr("/transaction/validate", msg: "Amount must be > 0"));
+      expect(
+            () => repository.validateTransactionDetails(10, "withdraw", -5),
+        throwsA("Amount must be > 0"),
       );
-
-      when(mockDioAuth.post(
-        '/transaction',
-        data: anyNamed('data'),
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onSendProgress: anyNamed('onSendProgress'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenAnswer((_) async => fakeResponse);
-
-      final result = await repository.createTransaction(1, "DEPOSIT", 100.0);
-      expect(result, isA<TransactionResponseModel>());
-      expect(result!.transaction.type, "DEPOSIT");
     });
 
-    test('getTransactions returns list<TransactionModel>', () async {
-      final fakeResponse = Response(
-        requestOptions: RequestOptions(path: '/transaction/1'),
-        statusCode: 200,
-        data: {
+    test('createTransaction success', () async {
+      when(mockAuthDio.post("/transaction", data: anyNamed('data'))).thenAnswer((_) async {
+        final data = {
+          "status": "Success",
+          "transaction": transactionJson(),
+        };
+        return ok("/transaction", data: data, statusCode: 201);
+      });
+
+      final res = await repository.createTransaction(10, "deposit", 250.0);
+      expect(res, isA<TransactionResponseModel>());
+      expect(res!.transaction.amount, 250.0);
+    });
+
+    test('createTransaction error → message throw', () async {
+      when(mockAuthDio.post("/transaction", data: anyNamed('data')))
+          .thenThrow(dioErr("/transaction", msg: "Insufficient balance"));
+      expect(
+            () => repository.createTransaction(10, "transfer_out", 9999.0, relatedIban: "TR..."),
+        throwsA("Insufficient balance"),
+      );
+    });
+
+    test('getTransactions success → liste maplenir', () async {
+      when(mockAuthDio.get("/transaction/10")).thenAnswer((_) async {
+        final data = {
           "transactions": [
-            {
-              "id": 1, "accountId": 1, "type": "DEPOSIT",
-              "amount": 200.0, "description": "Money Deposited",
-              "createdAt": DateTime.now().toIso8601String(),
-            },
-            {
-              "id": 2, "accountId": 1, "type": "WITHDRAW",
-              "amount": 50.0, "description": "Money withdrawed",
-              "createdAt": DateTime.now().toIso8601String(),
-            },
+            transactionJson(id: 1, type: "deposit", amount: 100),
+            transactionJson(id: 2, type: "withdraw", amount: 50),
           ]
-        },
-      );
+        };
+        return ok("/transaction/10", data: data);
+      });
 
-      when(mockDioAuth.get(
-        '/transaction/1',
-        queryParameters: anyNamed('queryParameters'),
-        options: anyNamed('options'),
-        cancelToken: anyNamed('cancelToken'),
-        onReceiveProgress: anyNamed('onReceiveProgress'),
-      )).thenAnswer((_) async => fakeResponse);
+      final list = await repository.getTransactions(10);
+      expect(list, isA<List<TransactionModel>>());
+      expect(list.length, 2);
+      expect(list.first.type, "deposit");
+    });
 
-      final result = await repository.getTransactions(1);
-      expect(result, isA<List<TransactionModel>>());
-      expect(result.length, 2);
-      expect(result.first.type, "DEPOSIT");
+    test('getTransactions error → boş liste', () async {
+      when(mockAuthDio.get("/transaction/10")).thenThrow(Exception('down'));
+      final list = await repository.getTransactions(10);
+      expect(list, isEmpty);
     });
   });
 }
