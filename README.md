@@ -22,6 +22,13 @@ Bu proje, sanal bir banka uygulamasının Flutter ile yazılmış mobil uygulama
 - `shared_preferences`
 - `go_router`
 - `flutter_screenutil`
+- ### Test için:
+  - `flutter_test`
+  - `integration_test`
+  - `mockito`
+  - `build_runner`
+  - `golden_toolkit`
+  - `bloc_test`
 
 ## 🔑 Backend Bağlantısı
 
@@ -56,12 +63,41 @@ baseUrl = "http://10.0.2.2:5000/api";
    flutter run
    ```
 
-## 🧪 Giriş Testi
+## 🧪 Testler
 
-Kayıt olduktan sonra giriş yapabilirsiniz. Token başarılı şekilde alınır ve tüm yetkili isteklerde `Authorization: Bearer <token>` olarak gönderilir.
+Bu projede tam test kapsamı uygulanmıştır:
+
+### ✅ 1. Unit Test
+- Cubit'lerin state yönetimi
+- Repository metotları
+- Test klasörü: `test/unit/`
+
+### ✅ 2. Widget Test
+- Sayfa yapılarının, form alanlarının testleri
+- Test klasörü: `test/widget/`
+
+### ✅ 3. Golden Test
+- Sayfaların ekran görüntüsü karşılaştırmaları
+- Bozulmaları önlemek için `golden_toolkit` kullanıldı
+- Test klasörü: `test/golden/`
+- Golden güncellemek için:
+  ```
+  flutter test --update-goldens
+  ```
+
+### ✅ 4. Integration Test
+- Uygulamanın tam akış senaryoları test edildi (giriş, hesap açma, transfer vb.)
+- Gerçek cihaz/emulator gerektirir
+- Test klasörü: `integration_test/`
+- Çalıştırmak için:
+  ```
+  flutter test integration_test/
+  ```
 
 ## 💡 Geliştirme Notları
 
 - Giriş yapıldığında token `SharedPreferences` içine kaydedilir.
 - Cubit'ler sayfaları ayrı ayrı yönetir (LoginCubit, RegisterCubit, BankAccountsCubit, TransactionsCubit...)
 - Tüm işlemler sonrası ilgili Cubit yeniden state emit eder.
+- Yönlendirme sistemi `GoRouter` ile sağlanır.
+- Responsive yapı için `flutter_screenutil` kullanılır.
